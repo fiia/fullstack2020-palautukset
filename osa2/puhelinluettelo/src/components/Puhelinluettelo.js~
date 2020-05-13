@@ -1,0 +1,123 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios'
+import Numbers from '../services/Numbers'
+
+const FilterForm = ({filterWord, handleFilterChange}) => {
+  return (
+    <div>
+      <p>
+        filter shown with:
+        <input
+          value={filterWord}
+          onChange={handleFilterChange}/>
+      </p>
+    </div>
+  )
+
+}
+
+const MakeList = ({persons, filterWord}) => {
+  let l = persons.filter(p => p['name'].toLowerCase()
+                         .includes(filterWord.toLowerCase()))
+  return (
+    l.map(p => (<li key={p.name}> <p>{p.name} {p.number}</p> </li>))
+  )
+}
+
+const PersonForm = ({addName, handleNameChange, newName,
+		     newNumber, handleNumberChange}) => {
+  return (
+  <form onSubmit={addName}>
+    <div>      
+      <p>
+        name:
+        <input
+          value={newName}
+          onChange={handleNameChange}/>
+      </p>
+      <p>
+        number:
+        <input
+          value={newNumber}
+          onChange={handleNumberChange}/>
+      </p>
+      
+    </div>
+    <div>
+      <button type="submit">add</button>
+    </div>
+  </form>
+  )
+}
+
+const App = () => {
+
+  useEffect(() => {
+    Numbers
+      .getAll()
+      .then(response => {
+        setPersons(response.data)
+      })
+  }, [])
+  
+  const [ persons, setPersons] = useState([]) 
+  const [ newName, setNewName ] = useState('')
+  const [ newNumber, setNewNumber ] = useState('')
+  const [ filterWord, setFilterWord ] = useState('')
+
+  const addName = (event) => {
+        
+    event.preventDefault()
+
+    if(!checkDups()) {
+      window.alert(`${newName} is already added to phonebook`)
+    } else {
+      const personObject = {name: newName, number: newNumber}
+
+      Numbers
+        .create(personObject)
+        .then(response => {
+          setPersons(persons.concat(response.data))
+        })
+    }
+    setNewName('')
+    setNewNumber('')
+  }
+
+  const handleNameChange = (event) => {
+    setNewName(event.target.value)
+  }
+
+  const handleNumberChange = (event) => {
+    setNewNumber(event.target.value)
+  }
+
+  const handleFilterChange = (event) => {
+    setFilterWord(event.target.value)
+
+  }
+
+  const checkDups = () => {
+    return persons.filter(p => p['name'] === newName).length===0
+  }
+
+  return (
+    <div>
+      <h2>Phonebook</h2>
+      <FilterForm filterWord={filterWord} handleFilterChange={handleFilterChange} />
+
+      <h1>add new</h1>
+      <PersonForm addName={addName} handleNameChange={handleNameChange}
+                  newName={newName} newNumber={newNumber}
+                  handleNumberChange={handleNumberChange} />
+      <h2>Numbers</h2>
+      <ul>
+        <MakeList persons={persons} filterWord={filterWord} />
+      </ul>             
+    </div>
+  )
+
+}
+
+export default App
+
