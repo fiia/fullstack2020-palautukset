@@ -1,0 +1,45 @@
+import React from 'react';
+
+const Header = ({course}) => {
+  return (
+    <div>
+      <h1>{course.name}</h1>	    
+    </div>
+  )
+}
+
+const Content = ({course}) => {
+  return (
+    course.parts.map(p =>
+		     <li key={p.id}>
+		       <Part name={p.name} exercises={p.exercises} />
+		     </li>)
+  )
+}
+
+const Total = ({course}) => {
+  let num = course.parts.reduce(function(sum, part) {
+    return sum + part.exercises
+  }, 0)
+  
+  return (
+    <p><b>total of {num} exercises</b></p>
+  )
+}
+
+const Part = ({name, exercises}) =>  <p>{name} {exercises}</p>
+      
+const Course = ({course}) => {
+
+  return (
+    <div>
+      <Header course = {course} />
+      <ul>
+        <Content course = {course} />
+        <Total course = {course} />
+      </ul>
+    </div>
+  )
+}
+
+export default Course
